@@ -63,10 +63,13 @@
     var ctl = new AbortController();
     var timer = setTimeout(function () { ctl.abort(); }, 15000);
     fetch(endpoint, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data), signal: ctl.signal
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: data.name, email: data.email, message: data.message,
+        _subject: 'Вэб сайтаас зурвас: ' + data.name, _template: 'table', _captcha: 'false'
+      }), signal: ctl.signal
     }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j.ok !== false, error: j.error }; });
+      return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j.ok !== false && String(j.success) !== 'false', error: j.error }; });
     }).then(function (res) {
       if (res.ok) { form.reset(); say('Зурвас илгээгдлээ. Удахгүй хариу бичнэ.', 'ok'); }
       else say(res.error || 'Зурвас илгээгдсэнгүй. Дахин оролдох эсвэл ' + mailto + ' хаяг руу бичнэ үү.', 'err');
